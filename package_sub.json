@@ -1,0 +1,13 @@
+{
+  "name": "instagram-subbot",
+  "version": "1.0.0",
+  "description": "Création automatique de sous-comptes Instagram depuis des comptes principaux",
+  "main": "subBot.js",
+  "scripts": {
+    "start": "node subBot.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.1"
+  }
+}
