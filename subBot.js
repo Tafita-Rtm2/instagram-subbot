@@ -426,13 +426,23 @@ app.use(express.json());
 
 // Lancer le bot
 app.post('/api/start', async (req, res) => {
+    // Accepter comptes depuis le body OU depuis accounts.txt
+    if(req.body.accounts){
+        try{ fs.writeFileSync(ACCOUNTS_FILE, req.body.accounts, 'utf-8'); }catch(e){}
+    }
+
+    const accounts = loadMainAccounts();
+    if(!accounts.length){
+        return res.json({ error: 'Aucun compte valide ! Format: username|password' });
+    }
+
     const sessionId = Date.now().toString();
     sessions[sessionId] = {
         running : true,
         logs    : [],
         mains   : [],
         subs    : [],
-        total   : 0,
+        total   : accounts.length * SUBS_PER_MAIN,
         done    : 0,
     };
     res.json({ sessionId });
@@ -441,14 +451,6 @@ app.post('/api/start', async (req, res) => {
         sessions[sessionId].logs.push(msg);
         slog(msg);
     };
-
-    const accounts = loadMainAccounts();
-    if(!accounts.length){
-        log('❌ Aucun compte dans accounts.txt !');
-        log('💡 Format attendu : username|password|cle2fa (ou username|password)');
-        sessions[sessionId].running = false;
-        return;
-    }
 
     sessions[sessionId].total = accounts.length * SUBS_PER_MAIN;
     sessions[sessionId].mains = accounts.map(a=>({username:a.username,subs:0}));
@@ -673,10 +675,12 @@ function renderTable(){
 
 async function start(){
   var txt=document.getElementById('accs-input').value.trim();
-  if(!txt){ alert('Ajoute au moins un compte dans la zone de texte !'); return; }
+  if(!txt){ alert('Ajoute au moins un compte !\nFormat : username|password'); return; }
 
-  // Upload accounts
-  await fetch('/api/accounts/upload',{method:'POST',headers:{'Content-Type':'text/plain'},body:txt});
+  // Valider format
+  var lines=txt.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
+  if(!lines.length){ alert('Aucun compte valide trouvé !'); return; }
+  addLog('📋 '+lines.length+' compte(s) trouvé(s)…');
 
   document.getElementById('btn-start').disabled=true;
   document.getElementById('btn-stop').style.display='block';
@@ -684,12 +688,24 @@ async function start(){
   document.getElementById('status-badge').className='badge badge-green';
   document.getElementById('status-badge').textContent='▶ En cours';
   allSubs=[]; lastLog=0; renderTable();
-  addLog('🚀 Démarrage…');
 
-  var r=await fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
-  var d=await r.json();
-  sessionId=d.sessionId;
-  pollTimer=setInterval(poll,2000);
+  try{
+    // Upload + start en une seule requête
+    var r=await fetch('/api/start',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({accounts:txt})
+    });
+    if(!r.ok){ addLog('❌ Erreur serveur: '+r.status); document.getElementById('btn-start').disabled=false; return; }
+    var d=await r.json();
+    if(d.error){ addLog('❌ '+d.error); document.getElementById('btn-start').disabled=false; return; }
+    sessionId=d.sessionId;
+    addLog('🚀 Session démarrée: '+sessionId);
+    pollTimer=setInterval(poll,2000);
+  }catch(e){
+    addLog('❌ Connexion échouée: '+e.message);
+    document.getElementById('btn-start').disabled=false;
+  }
 }
 
 async function stop(){
