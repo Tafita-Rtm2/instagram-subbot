@@ -513,236 +513,207 @@ const UI = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SubBot — Sous-comptes Instagram</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<title>SubBot</title>
 <style>
 :root{--bg:#08080f;--s:#10101a;--b:#1c1c2a;--accent:#e1306c;--a2:#f77737;--green:#00d68f;--blue:#3b82f6;--yellow:#f59e0b;--text:#eef0f5;--muted:#4a4a6a;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(225,48,108,.08),transparent);pointer-events:none;}
-
-.top{position:sticky;top:0;z-index:99;background:rgba(8,8,15,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;}
-.logo{font-family:'Space Mono',monospace;font-weight:700;font-size:.95rem;background:linear-gradient(135deg,var(--accent),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.badge{padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:700;}
-.badge-green{background:rgba(0,214,143,.12);color:var(--green);}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.top{position:sticky;top:0;z-index:99;background:rgba(8,8,15,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;}
+.logo{font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--accent),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.badge{padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700;}
 .badge-red{background:rgba(225,48,108,.12);color:var(--accent);}
-
+.badge-green{background:rgba(0,214,143,.12);color:var(--green);}
 .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 52px);}
-.side{background:var(--s);border-right:1px solid var(--b);padding:20px;display:flex;flex-direction:column;gap:16px;}
-.main{padding:24px;overflow-y:auto;}
-
-.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:16px;}
-.label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
-
-/* accounts input */
-.accs-area{width:100%;height:140px;background:var(--bg);border:1px solid var(--b);border-radius:10px;color:var(--text);font-family:'Space Mono',monospace;font-size:.7rem;padding:10px;resize:vertical;outline:none;line-height:1.6;}
-.accs-area:focus{border-color:var(--accent);}
-.accs-hint{font-size:.65rem;color:var(--muted);margin-top:6px;line-height:1.5;}
-
-/* buttons */
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;transition:.2s;}
-.btn-start{background:linear-gradient(135deg,var(--accent),var(--a2));color:#fff;box-shadow:0 4px 20px rgba(225,48,108,.3);}
-.btn-start:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(225,48,108,.5);}
-.btn-start:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.side{background:var(--s);border-right:1px solid var(--b);padding:20px;display:flex;flex-direction:column;gap:14px;}
+.main-area{padding:24px;overflow-y:auto;}
+.card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:14px;}
+.lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;font-weight:700;}
+textarea{width:100%;height:120px;background:var(--bg);border:1px solid var(--b);border-radius:8px;color:var(--text);font-family:monospace;font-size:.75rem;padding:10px;resize:vertical;outline:none;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+.hint{font-size:.65rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;transition:.15s;}
+.btn-go{background:linear-gradient(135deg,var(--accent),var(--a2));color:#fff;box-shadow:0 4px 20px rgba(225,48,108,.3);}
+.btn-go:hover:not(:disabled){transform:translateY(-1px);}
+.btn-go:disabled{opacity:.4;cursor:not-allowed;}
 .btn-stop{background:rgba(225,48,108,.1);color:var(--accent);border:1px solid rgba(225,48,108,.3);}
-.btn-stop:hover{background:rgba(225,48,108,.2);}
-.btn-dl{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);margin-top:8px;}
-.btn-dl:hover{background:rgba(59,130,246,.2);}
-
-/* progress */
-.prog-track{height:4px;background:var(--b);border-radius:2px;margin:10px 0;overflow:hidden;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a2));border-radius:2px;transition:width .5s ease;width:0;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.btn-dl{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
+.prog-track{height:4px;background:var(--b);border-radius:2px;margin:8px 0;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--a2));border-radius:2px;width:0;transition:width .5s;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
 .stat{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:8px;text-align:center;}
-.stat .n{font-family:'Space Mono',monospace;font-size:1.1rem;font-weight:700;}
-.n-g{color:var(--green)}.n-b{color:#f87171}.n-y{color:var(--yellow)}
-
-/* logs */
-.logs{height:220px;overflow-y:auto;font-family:'Space Mono',monospace;font-size:.65rem;padding:10px;background:var(--bg);border-radius:8px;}
-.logs::-webkit-scrollbar{width:3px;}
-.logs::-webkit-scrollbar-thumb{background:var(--b);}
-.ll{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);line-height:1.5;}
-.ok{color:var(--green)}.er{color:#f87171}.wa{color:var(--yellow)}.in{color:var(--blue)}.df{color:#555}
-
-/* table sous-comptes */
-.tb{width:100%;border-collapse:collapse;font-size:.78rem;}
-.tb th{font-family:'Space Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--b);}
-.tb td{padding:8px 12px;border-bottom:1px solid var(--b);color:var(--text);}
-.tb tr:hover td{background:rgba(255,255,255,.02);}
-.cp{background:transparent;border:1px solid var(--b);color:var(--muted);border-radius:5px;padding:1px 7px;cursor:pointer;font-size:.65rem;}
-.cp:hover{color:var(--text);border-color:var(--accent);}
-.main-tag{background:rgba(225,48,108,.12);color:var(--accent);padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;}
-
+.stat .n{font-size:1.1rem;font-weight:800;font-family:monospace;}
+.ng{color:var(--green)}.nb{color:#f87171}.ny{color:var(--yellow)}
+.logbox{height:180px;overflow-y:auto;font-family:monospace;font-size:.65rem;padding:8px;background:var(--bg);border-radius:8px;}
+.ll{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);word-break:break-all;}
+.lok{color:var(--green)}.ler{color:#f87171}.lwa{color:var(--yellow)}.lin{color:var(--blue)}.ldf{color:#666}
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.tbl th{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1px solid var(--b);}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--b);}
+.tag{background:rgba(225,48,108,.12);color:var(--accent);padding:1px 8px;border-radius:20px;font-size:.65rem;font-weight:700;}
+.cpbtn{background:transparent;border:1px solid var(--b);color:var(--muted);border-radius:5px;padding:2px 8px;cursor:pointer;font-size:.65rem;}
+.cpbtn:hover{color:var(--text);border-color:var(--accent);}
 .empty{text-align:center;padding:60px;color:var(--muted);}
-.empty-ico{font-size:2.5rem;margin-bottom:12px;opacity:.4;}
-
-@media(max-width:800px){.layout{grid-template-columns:1fr}.side{border-right:none;border-bottom:1px solid var(--b)}}
+@media(max-width:750px){.layout{grid-template-columns:1fr}.side{border-right:none;border-bottom:1px solid var(--b)}}
 </style>
 </head>
 <body>
+
 <div class="top">
-  <div class="logo">&#x1F916; SubBot — Sous-comptes IG</div>
-  <div id="status-badge" class="badge badge-red">⏹ Arrêté</div>
+  <div class="logo">&#x1F916; SubBot Instagram</div>
+  <div id="sbadge" class="badge badge-red">&#x23F9; Arrete</div>
 </div>
 
 <div class="layout">
 <div class="side">
-
   <div class="card">
-    <div class="label">Comptes principaux</div>
-    <textarea class="accs-area" id="accs-input" placeholder="username|password&#10;username|password|CLE2FA&#10;username|password&#10;..."></textarea>
-    <div class="accs-hint">Format : username|password ou username|password|clé2fa<br>Un compte par ligne — les lignes # sont ignorées</div>
+    <div class="lbl">Comptes principaux</div>
+    <textarea id="accs" placeholder="username|password&#10;username|password|2FA&#10;..."></textarea>
+    <div class="hint">Format : username|password<br>Avec 2FA : username|password|CLE2FA<br>Un compte par ligne</div>
     <div id="accs-count" style="font-size:.7rem;color:var(--muted);margin-top:6px;"></div>
   </div>
 
-  <button class="btn btn-start" id="btn-start" onclick="start()">🚀 Lancer le bot</button>
-  <button class="btn btn-stop" id="btn-stop" style="display:none" onclick="stop()">⏹ Arrêter</button>
-  <button class="btn btn-dl" onclick="download()">⬇️ Télécharger results.txt</button>
+  <button class="btn btn-go" id="btnGo">&#x1F680; Lancer le bot</button>
+  <button class="btn btn-stop" id="btnStop" style="display:none">&#x23F9; Arreter</button>
+  <button class="btn btn-dl" onclick="dlResults()">&#x2B07;&#xFE0F; Telecharger results.txt</button>
 
-  <div class="card" id="prog-card" style="display:none">
-    <div class="label">Progression</div>
-    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
-    <div id="prog-txt" style="font-size:.7rem;color:var(--muted);text-align:center;"></div>
+  <div id="progCard" style="display:none" class="card">
+    <div class="lbl">Progression</div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div id="progTxt" style="font-size:.7rem;color:var(--muted);text-align:center;margin-bottom:6px;"></div>
     <div class="stats">
-      <div class="stat"><div class="n n-g" id="cnt-ok">0</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">✅ Créés</div></div>
-      <div class="stat"><div class="n n-y" id="cnt-main">0</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">👤 Mains</div></div>
-      <div class="stat"><div class="n n-b" id="cnt-target">0</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">🎯 Cible</div></div>
+      <div class="stat"><div class="n ng" id="cntOk">0</div><div style="font-size:.6rem;color:var(--muted)">Crees</div></div>
+      <div class="stat"><div class="n ny" id="cntMain">0</div><div style="font-size:.6rem;color:var(--muted)">Mains</div></div>
+      <div class="stat"><div class="n nb" id="cntTarget">0</div><div style="font-size:.6rem;color:var(--muted)">Cible</div></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="label">Logs</div>
-    <div class="logs" id="logs"></div>
+    <div class="lbl">Logs</div>
+    <div class="logbox" id="logbox"></div>
   </div>
-
 </div>
 
-<div class="main">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <div style="font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;" id="table-title">📋 Sous-comptes créés</div>
-    <div id="sub-count" style="font-size:.78rem;color:var(--muted);"></div>
+<div class="main-area">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;">Sous-comptes crees</div>
+    <div id="subCount" style="font-size:.78rem;color:var(--muted);"></div>
   </div>
-  <div id="table-wrap">
-    <div class="empty"><div class="empty-ico">📱</div><p>Lance le bot — les sous-comptes s'affichent ici en temps réel</p></div>
-  </div>
+  <div id="tableWrap"><div class="empty">&#x1F4F1; Lance le bot pour voir les sous-comptes ici</div></div>
 </div>
 </div>
 
 <script>
-var sessionId=null, pollTimer=null, lastLog=0, allSubs=[];
+var SID=null, timer=null, lastLog=0, allSubs=[];
 
-document.getElementById('accs-input').addEventListener('input', function(){
-  var lines=this.value.split('\\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-  document.getElementById('accs-count').textContent=lines.length+' compte(s) détecté(s)';
+document.getElementById('accs').addEventListener('input',function(){
+  var n=this.value.split('\n').filter(function(l){return l.trim()&&!l.startsWith('#');}).length;
+  document.getElementById('accs-count').textContent=n+' compte(s)';
 });
 
-function addLog(msg){
-  var box=document.getElementById('logs');
-  var cls='df';
-  if(msg.includes('✅')||msg.includes('🎉')) cls='ok';
-  else if(msg.includes('❌')) cls='er';
-  else if(msg.includes('⚠️')) cls='wa';
-  else if(msg.includes('🚀')||msg.includes('📡')||msg.includes('📬')) cls='in';
+document.getElementById('btnGo').addEventListener('click', startBot);
+document.getElementById('btnStop').addEventListener('click', stopBot);
+
+function log(msg,cls){
+  var b=document.getElementById('logbox');
   var d=document.createElement('div');
-  d.className='ll '+cls;
-  d.textContent=new Date().toLocaleTimeString('fr')+' '+msg;
-  box.insertBefore(d,box.firstChild);
-  while(box.children.length>300) box.removeChild(box.lastChild);
+  d.className='ll '+(cls||'ldf');
+  d.textContent=new Date().toLocaleTimeString()+' '+msg;
+  b.insertBefore(d,b.firstChild);
+  if(b.children.length>200) b.removeChild(b.lastChild);
 }
 
-function cp(t){ if(navigator.clipboard){navigator.clipboard.writeText(t);}else{var x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();document.execCommand('copy');document.body.removeChild(x);} }
+function copyText(t){
+  try{navigator.clipboard.writeText(t);}catch(e){
+    var x=document.createElement('textarea');x.value=t;
+    document.body.appendChild(x);x.select();document.execCommand('copy');
+    document.body.removeChild(x);
+  }
+}
 
 function renderTable(){
-  var wrap=document.getElementById('table-wrap');
-  if(!allSubs.length){
-    wrap.innerHTML='<div class="empty"><div class="empty-ico">📱</div><p>Aucun sous-compte encore créé</p></div>';
-    return;
-  }
-  var rows=allSubs.slice().reverse().map(s=>
-    '<tr>'
-    +'<td><span class="main-tag">'+s.mainUser+'</span></td>'
-    +'<td>@'+s.uName+'</td>'
-    +'<td>'+s.email+'</td>'
-    +'<td>'+s.password+'</td>'
-    +'<td>'+new Date(s.createdAt).toLocaleTimeString('fr')+'</td>'
-    +'<td>'
-      +'<button class="cp" onclick="cp(\''+s.uName+'|'+s.password+'|'+s.email+'\')">⎘ Copier</button>'
-    +'</td>'
-    +'</tr>'
-  ).join('');
-  wrap.innerHTML='<table class="tb"><thead><tr><th>Compte principal</th><th>Sous-compte</th><th>Email</th><th>Mot de passe</th><th>Créé à</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  var w=document.getElementById('tableWrap');
+  if(!allSubs.length){w.innerHTML='<div class="empty">&#x1F4F1; Aucun sous-compte encore</div>';return;}
+  var rows=allSubs.slice().reverse().map(function(s){
+    var key=s.uName+'|'+s.password+'|'+s.email;
+    return '<tr><td><span class="tag">'+s.mainUser+'</span></td><td>@'+s.uName+'</td><td>'+s.email+'</td><td>'+s.password+'</td><td>'+new Date(s.createdAt).toLocaleTimeString()+'</td><td><button class="cpbtn" onclick="copyText('+JSON.stringify(key)+')">Copier</button></td></tr>';
+  }).join('');
+  w.innerHTML='<table class="tbl"><thead><tr><th>Principal</th><th>Sous-compte</th><th>Email</th><th>Mot de passe</th><th>Heure</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
-async function start(){
-  var txt=document.getElementById('accs-input').value.trim();
-  if(!txt){ alert('Ajoute au moins un compte !\nFormat : username|password'); return; }
+async function startBot(){
+  var txt=document.getElementById('accs').value.trim();
+  if(!txt){alert('Entre au moins un compte !');return;}
+  var lines=txt.split('\n').filter(function(l){return l.trim()&&!l.startsWith('#');});
+  if(!lines.length){alert('Aucun compte valide !');return;}
 
-  // Valider format
-  var lines=txt.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#'));
-  if(!lines.length){ alert('Aucun compte valide trouvé !'); return; }
-  addLog('📋 '+lines.length+' compte(s) trouvé(s)…');
-
-  document.getElementById('btn-start').disabled=true;
-  document.getElementById('btn-stop').style.display='block';
-  document.getElementById('prog-card').style.display='block';
-  document.getElementById('status-badge').className='badge badge-green';
-  document.getElementById('status-badge').textContent='▶ En cours';
-  allSubs=[]; lastLog=0; renderTable();
+  document.getElementById('btnGo').disabled=true;
+  document.getElementById('btnStop').style.display='block';
+  document.getElementById('progCard').style.display='block';
+  document.getElementById('sbadge').className='badge badge-green';
+  document.getElementById('sbadge').textContent='En cours...';
+  allSubs=[];lastLog=0;renderTable();
+  log('Envoi de '+lines.length+' compte(s)...','lin');
 
   try{
-    // Upload + start en une seule requête
-    var r=await fetch('/api/start',{
+    var resp=await fetch('/api/start',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({accounts:txt})
     });
-    if(!r.ok){ addLog('❌ Erreur serveur: '+r.status); document.getElementById('btn-start').disabled=false; return; }
-    var d=await r.json();
-    if(d.error){ addLog('❌ '+d.error); document.getElementById('btn-start').disabled=false; return; }
-    sessionId=d.sessionId;
-    addLog('🚀 Session démarrée: '+sessionId);
-    pollTimer=setInterval(poll,2000);
+    var data=await resp.json();
+    if(data.error){log('ERREUR: '+data.error,'ler');document.getElementById('btnGo').disabled=false;return;}
+    SID=data.sessionId;
+    log('Session: '+SID,'lin');
+    timer=setInterval(poll,2000);
   }catch(e){
-    addLog('❌ Connexion échouée: '+e.message);
-    document.getElementById('btn-start').disabled=false;
+    log('Erreur connexion: '+e.message,'ler');
+    document.getElementById('btnGo').disabled=false;
   }
 }
 
-async function stop(){
-  if(sessionId) await fetch('/api/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})});
-  clearInterval(pollTimer);
-  document.getElementById('btn-start').disabled=false;
-  document.getElementById('btn-stop').style.display='none';
-  document.getElementById('status-badge').className='badge badge-red';
-  document.getElementById('status-badge').textContent='⏹ Arrêté';
+async function stopBot(){
+  if(SID) await fetch('/api/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:SID})}).catch(function(){});
+  clearInterval(timer);
+  document.getElementById('btnGo').disabled=false;
+  document.getElementById('btnStop').style.display='none';
+  document.getElementById('sbadge').className='badge badge-red';
+  document.getElementById('sbadge').textContent='Arrete';
 }
 
 async function poll(){
-  if(!sessionId) return;
+  if(!SID) return;
   try{
-    var d=await fetch('/api/session/'+sessionId).then(r=>r.json());
-    d.logs.slice(lastLog).forEach(m=>addLog(m)); lastLog=d.logs.length;
+    var d=await fetch('/api/session/'+SID).then(function(r){return r.json();});
+    d.logs.slice(lastLog).forEach(function(m){
+      var cls='ldf';
+      if(m.includes('OK')||m.includes('cree')||m.includes('eussi')) cls='lok';
+      else if(m.includes('ERREUR')||m.includes('echec')||m.includes('Echec')) cls='ler';
+      else if(m.includes('Pause')||m.includes('Attente')) cls='lwa';
+      else if(m.includes('Demarra')||m.includes('Login')||m.includes('Etape')) cls='lin';
+      log(m,cls);
+    });
+    lastLog=d.logs.length;
     allSubs=d.subs||[];
     var pct=d.total>0?Math.round(allSubs.length/d.total*100):0;
-    document.getElementById('prog-fill').style.width=pct+'%';
-    document.getElementById('prog-txt').textContent=allSubs.length+' / '+d.total+' ('+pct+'%)';
-    document.getElementById('cnt-ok').textContent=allSubs.length;
-    document.getElementById('cnt-main').textContent=(d.mains||[]).length;
-    document.getElementById('cnt-target').textContent=d.total;
-    document.getElementById('sub-count').textContent=allSubs.length+' sous-compte(s)';
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progTxt').textContent=allSubs.length+' / '+d.total+' ('+pct+'%)';
+    document.getElementById('cntOk').textContent=allSubs.length;
+    document.getElementById('cntMain').textContent=(d.mains||[]).length;
+    document.getElementById('cntTarget').textContent=d.total;
+    document.getElementById('subCount').textContent=allSubs.length+' sous-compte(s)';
     renderTable();
     if(!d.running){
-      clearInterval(pollTimer);
-      document.getElementById('btn-start').disabled=false;
-      document.getElementById('btn-stop').style.display='none';
-      document.getElementById('status-badge').className='badge badge-red';
-      document.getElementById('status-badge').textContent='✅ Terminé';
-      addLog('🏁 Terminé ! '+allSubs.length+' sous-comptes créés.');
+      clearInterval(timer);
+      document.getElementById('btnGo').disabled=false;
+      document.getElementById('btnStop').style.display='none';
+      document.getElementById('sbadge').className='badge badge-red';
+      document.getElementById('sbadge').textContent='Termine';
+      log('Termine ! '+allSubs.length+' sous-comptes crees.','lok');
     }
   }catch(e){}
 }
 
-function download(){ window.open('/api/results/download','_blank'); }
+function dlResults(){window.open('/api/results/download','_blank');}
 </script>
 </body>
 </html>`;
