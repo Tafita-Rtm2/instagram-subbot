@@ -207,42 +207,74 @@ async function loginMainAccount(account, log){
         if(!csrf) csrf='missing_'+randHex(8);
     }catch(e){ log('⚠️ Init: '+e.message); return null; }
 
-    // Login
-    const loginData = await mobilePost('/api/v1/accounts/login/', {
-        username         : account.username,
-        enc_password     : '#PWD_INSTAGRAM:4:'+Math.floor(Date.now()/1000)+':'+account.password,
-        device_id        : deviceId,
-        guid             : guid,
-        phone_id         : randUUID(),
-        login_attempt_count: '0',
-        country_codes    : '[{"country_code":"1","source":["default"]}]',
-    }, csrf, cookieStr, deviceId);
+    // Login — essai avec mot de passe en clair d'abord
+    let loginData = null;
 
+    // Méthode 1 : API mobile avec password encodé
+    loginData = await mobilePost('/api/v1/accounts/login/', {
+        username            : account.username,
+        enc_password        : '#PWD_INSTAGRAM:4:'+Math.floor(Date.now()/1000)+':'+account.password,
+        device_id           : deviceId,
+        guid                : guid,
+        phone_id            : randUUID(),
+        login_attempt_count : '0',
+        country_codes       : '[{"country_code":"1","source":["default"]}]',
+    }, csrf, cookieStr, deviceId);
     cookieStr = mergeCookies(cookieStr, loginData._newCookies);
-    if(loginData._newCookies?.csrftoken) csrf=loginData._newCookies.csrftoken;
+    if(loginData._newCookies && loginData._newCookies.csrftoken) csrf = loginData._newCookies.csrftoken;
+
+    // Si échec, essai méthode 2 : password en clair
+    if(!loginData.user && !loginData.logged_in_user && !loginData.two_factor_required){
+        log('⚠️ Méthode 1 échouée, essai méthode 2…');
+        log('📦 Réponse 1 : '+JSON.stringify(loginData).substring(0,120));
+        await sleep(3000);
+        loginData = await mobilePost('/api/v1/accounts/login/', {
+            username            : account.username,
+            password            : account.password,
+            device_id           : deviceId,
+            guid                : guid,
+            phone_id            : randUUID(),
+            login_attempt_count : '1',
+        }, csrf, cookieStr, deviceId);
+        cookieStr = mergeCookies(cookieStr, loginData._newCookies);
+        if(loginData._newCookies && loginData._newCookies.csrftoken) csrf = loginData._newCookies.csrftoken;
+    }
+
+    log('📦 Login réponse : '+JSON.stringify(loginData).substring(0,150));
+
+    // Checkpoint / vérification requise
+    if(loginData.checkpoint_url || loginData.message === 'checkpoint_required'){
+        log('⚠️ Checkpoint requis — compte peut nécessiter vérification manuelle');
+        log('🔗 URL: '+(loginData.checkpoint_url||'non fournie'));
+        return null;
+    }
 
     // 2FA si demandé
     if(loginData.two_factor_required || loginData.two_factor_info){
         log('🔑 2FA requis…');
         if(!account.twofa){ log('❌ Pas de clé 2FA dans accounts.txt'); return null; }
-        const twoFaId = loginData.two_factor_info?.two_factor_identifier;
+        const twoFaId = (loginData.two_factor_info||{}).two_factor_identifier;
         const totp = generate2FA(account.twofa);
+        log('🔑 Code TOTP : '+totp);
         const tfData = await mobilePost('/api/v1/accounts/two_factor_login/', {
-            username            : account.username,
-            verificationCode    : totp,
+            username             : account.username,
+            verificationCode     : totp,
             two_factor_identifier: twoFaId,
-            verification_method : '3',
-            device_id           : deviceId,
-            guid                : guid,
+            verification_method  : '3',
+            device_id            : deviceId,
+            guid                 : guid,
         }, csrf, cookieStr, deviceId);
         cookieStr = mergeCookies(cookieStr, tfData._newCookies);
-        if(tfData._newCookies?.csrftoken) csrf=tfData._newCookies.csrftoken;
-        if(!tfData.logged_in_user && !tfData.user){ log('❌ 2FA échoué : '+JSON.stringify(tfData).substring(0,80)); return null; }
+        if(tfData._newCookies && tfData._newCookies.csrftoken) csrf = tfData._newCookies.csrftoken;
+        if(!tfData.logged_in_user && !tfData.user){
+            log('❌ 2FA échoué : '+JSON.stringify(tfData).substring(0,120));
+            return null;
+        }
         log('✅ 2FA OK !');
     } else if(loginData.user || loginData.logged_in_user){
-        log('✅ Login réussi @'+account.username);
+        log('✅ Login réussi @'+account.username+' !');
     } else {
-        log('❌ Login échoué : '+JSON.stringify(loginData).substring(0,100));
+        log('❌ Login échoué : '+JSON.stringify(loginData).substring(0,150));
         return null;
     }
 
@@ -436,7 +468,7 @@ app.post('/api/start', async (req, res) => {
         return res.json({ error: 'Aucun compte valide ! Format: username|password' });
     }
 
-    const sessionId = Date.now().toString();
+    const sessionId = 'sid_' + Date.now();
     sessions[sessionId] = {
         running : true,
         logs    : [],
@@ -662,7 +694,7 @@ async function startBot(){
     });
     var data=await resp.json();
     if(data.error){log('ERREUR: '+data.error,'ler');document.getElementById('btnGo').disabled=false;return;}
-    SID=data.sessionId;
+    SID=(data.sessionId||'').trim().replace(/\s/g,'');
     log('Session: '+SID,'lin');
     timer=setInterval(poll,2000);
   }catch(e){
